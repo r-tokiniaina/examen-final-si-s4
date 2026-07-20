@@ -33,7 +33,17 @@ class OperateurController extends BaseController
     // GET /operateur/dashboard
     public function dashboard()
     {
-        return view('Operateur/dashboard');
+        $operation_model = model('OperationModel');
+        $nb_clients_par_jour = [12, 19, 3, 5, 2, 3, 7];
+        $frais_retrait_par_jour = [12, 19, 3, 5, 2, 3, 7];
+        $frais_transfert_par_jour = [3, 19, 3, 5, 5, 3, 7];
+        // $frais_retrait_par_jour = $operation_model->findAllPourTypeParJour(2, date('Y-m-d'));
+        // $frais_transfert_par_jour = $operation_model->findAllPourTypeParJour(3, date('Y-m-d'));
+        return view('Operateur/dashboard', [
+            'nb_clients_par_jour' => $nb_clients_par_jour,
+            'frais_retrait_par_jour' => $frais_retrait_par_jour,
+            'frais_transfert_par_jour' => $frais_transfert_par_jour,
+        ]);
     }
 
     // GET /operateur/prefixes

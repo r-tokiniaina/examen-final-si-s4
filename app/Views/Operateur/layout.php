@@ -6,7 +6,7 @@
   <title>Opérateur − <?= $this->renderSection('title') ?></title>
   <link rel="stylesheet" href="<?= base_url('/assets/icons/bold/style.css') ?>">
   <link rel="stylesheet" href="<?= base_url('/assets/libs/bootstrap/bootstrap.css') ?>">
-  <?= $this->renderSection('css') ?>
+  <?= $this->renderSection('head') ?>
 </head>
 <body class="bg-light">
 
