@@ -2,14 +2,14 @@
 - [x] base de données *(Ndroso)*
     - [x] creation table
     - [x] donnees
-- models:
-    - AdminModel *(Toky)*
-- opérateur:
-    - login *(Toky)*
-    - page de config de préfixe *(Toky)*
-    - page de config des barèmes de frais
-    - dashboard
-- client:
-    - login
-    - page d’historique des opérations
-    - page de nouvelle opération
+- [x] models:
+    - [x] AdminModel *(Toky)*
+- [x] opérateur:
+    - [x] login *(Toky)*
+    - [x] page de config de préfixe *(Toky)*
+    - [x] page de config des barèmes de frais *(Toky)*
+    - [x] dashboard *(Toky)*
+- [x] client:
+    - [x] login *(Ndroso)*
+    - [x] page d’historique des opérations *(Ndroso)*
+    - [x] page de nouvelle opération *(Ndroso)*
