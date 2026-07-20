@@ -1,9 +1,8 @@
 create table operateurs (
-    id integer primary key autoincrement,
-    libelle text not null,
-    pct_commission real
+	id integer primary key autoincrement,
+	libelle text not null,
+	pct_commission real
 );
-
 
 create table prefixes (
 	id integer primary key autoincrement,
@@ -46,9 +45,16 @@ create table admins (
 );
 
 
-insert into prefixes (valeur) values
-	('033'),
-	('037');
+insert into operateurs (libelle, pct_commission) values
+	('Airtel', 10),
+	('Yas', 20);
+
+insert into prefixes (id_operateur, valeur) values
+	(null, '032'),
+	(null, '037'),
+	(null, '033'),
+	(2, '034'),
+	(2, '038');
 
 insert into types_operations (libelle) values
 	('Dépôt'),
