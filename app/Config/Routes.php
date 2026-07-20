@@ -27,5 +27,7 @@ $routes->group('operateur', ['filter' => 'auth'], function ($routes) {
     $routes->post('prefixes/(:num)/update', 'OperateurController::postPrefixesUpdate/$1');
     $routes->get('prefixes/(:num)/delete', 'OperateurController::prefixesDelete/$1');
     $routes->get('baremes', 'OperateurController::baremes');
-    $routes->post('baremes/edit', 'OperateurController::baremesEdit');
+    $routes->post('baremes/new', 'OperateurController::postBaremesNew');
+    $routes->post('baremes/(:num)/update', 'OperateurController::postBaremesUpdate/$1');
+    $routes->get('baremes/(:num)/delete', 'OperateurController::baremesDelete/$1');
 });

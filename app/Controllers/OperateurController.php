@@ -102,6 +102,75 @@ class OperateurController extends BaseController
     // GET /operateur/baremes
     public function baremes()
     {
-        return view('Operateur/baremes');
+        $id_type_operation = $this->request->getGet('type') ?? 2;
+        $type_operation_model = model('TypeOperationModel');
+        $bareme_frais_model = model('BaremeFraisModel');
+
+        return view('Operateur/baremes', [
+            'id_type_operation' => $id_type_operation,
+            'types_operations' => $type_operation_model->findAllAvecFrais(),
+            'baremes_frais' => $bareme_frais_model->findAllByTypeOperation($id_type_operation),
+        ]);
+    }
+
+    // POST /operateur/baremes/new
+    public function postBaremesNew()
+    {
+        $data = [
+            'type_operation' => $this->request->getPost('type_operation'),
+            'montant_min' => $this->request->getPost('montant_min'),
+            'montant_max' => $this->request->getPost('montant_max'),
+            'frais' => $this->request->getPost('frais'),
+        ];
+        $bareme_frais_model = model('BaremeFraisModel');
+
+        if (!$bareme_frais_model->validate($data)) {
+            return redirect()->back()->with('message_erreur', implode(' ; ', $bareme_frais_model->errors()));
+        }
+        if ($data['montant_min'] > $data['montant_max']) {
+            return redirect()->back()->with('message_erreur', 'Le montant maximum doit être supérieur ou égal au montant minimum');
+        }
+
+        $bareme_frais_model->insert($data);
+
+        return redirect()->back()->with('message_succes', 'Barème ajouté avec succès');
+    }
+
+    // POST /operateur/baremes/(:num)/update
+    public function postBaremesUpdate($id)
+    {
+        $data = [
+            'id' => $id,
+            'type_operation' => $this->request->getPost('type_operation'),
+            'montant_min' => $this->request->getPost('montant_min'),
+            'montant_max' => $this->request->getPost('montant_max'),
+            'frais' => $this->request->getPost('frais'),
+        ];
+        $bareme_frais_model = model('BaremeFraisModel');
+
+        if (!$bareme_frais_model->validate($data)) {
+            return redirect()->back()->with('message_erreur', implode(' ; ', $bareme_frais_model->errors()));
+        }
+        if ($data['montant_min'] > $data['montant_max']) {
+            return redirect()->back()->with('message_erreur', 'Le montant maximum doit être supérieur ou égal au montant minimum');
+        }
+
+        $bareme_frais_model->save($data);
+
+        return redirect()->back()->with('message_succes', 'Barème modifié avec succès');
+    }
+
+    // GET /operateur/baremes/(:num)/delete
+    public function baremesDelete($id)
+    {
+        $bareme_frais_model = model('BaremeFraisModel');
+
+        if ($bareme_frais_model->where('id', $id)->first() === null) {
+            return redirect()->back()->withInput()->with('message_erreur', 'Vous essayer de supprimer un barème qui n’existe pas');
+        }
+
+        $bareme_frais_model->delete($id);
+
+        return redirect()->back()->with('message_succes', 'Barème supprimé avec succès');
     }
 }
