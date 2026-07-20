@@ -85,6 +85,16 @@ class ClientController extends BaseController
         return view('Client/operations', $data);
     }
 
+    public function calculerFrais(int $type, float $montant): float
+    {
+        $row = $this->where('type_operation', $type)
+                    ->where('montant_min <=', $montant)
+                    ->where('montant_max >=', $montant)
+                    ->first();
+
+        return $row ? (float) $row['frais'] : 0.0;
+    }
+
     public function newOperation()
     {
         if ($redirect = $this->checkAuth()) {
@@ -117,6 +127,8 @@ class ClientController extends BaseController
 
         return redirect()->to('/client/operations')->with('success', 'Opération enregistrée avec succès.');
     }
+
+
 
     // ==========================================
     // MÉTHODES PRIVÉES DE CALCUL & AUTH
