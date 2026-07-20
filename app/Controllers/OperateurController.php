@@ -46,28 +46,104 @@ class OperateurController extends BaseController
         ]);
     }
 
+    // GET /operateur/autres-operateurs
+    public function autresOperateurs()
+    {
+        $operateur_model = model('OperateurModel');
+
+        return view('Operateur/autresOperateurs', [
+            'operateurs' => $operateur_model->findAll(),
+        ]);
+    }
+
+    // POST /operateur/autres-operateurs/new
+    public function postAutresOperateursNew()
+    {
+        $data = [
+            'type_operation' => $this->request->getPost('type_operation'),
+            'montant_min' => $this->request->getPost('montant_min'),
+            'montant_max' => $this->request->getPost('montant_max'),
+            'frais' => $this->request->getPost('frais'),
+        ];
+        $operateur_model = model('OperateurModel');
+
+        if (!$operateur_model->validate($data)) {
+            return redirect()->back()->with('message_erreur', implode(' ; ', $operateur_model->errors()));
+        }
+
+        $operateur_model->insert($data);
+
+        return redirect()->back()->with('message_succes', 'Opérateur ajouté avec succès');
+    }
+
+    // POST /operateur/autres-operateurs/(:num)/update
+    public function postAutresOperateursUpdate($id)
+    {
+        $data = [
+            'id' => $id,
+            'libelle' => $this->request->getPost('libelle'),
+            'pct_commission' => $this->request->getPost('pct_commission'),
+        ];
+        $operateur_model = model('OperateurModel');
+
+        if (!$operateur_model->validate($data)) {
+            return redirect()->back()->with('message_erreur', implode(' ; ', $operateur_model->errors()));
+        }
+
+        $operateur_model->save($data);
+
+        return redirect()->back()->with('message_succes', 'Opérateur modifié avec succès');
+    }
+
+    // GET /operateur/autres-operateurs/(:num)/delete
+    public function autresOperateursDelete($id)
+    {
+        $operateur_model = model('OperateurModel');
+        $prefixe_model = model('PrefixeModel');
+
+        if ($operateur_model->where('id', $id)->first() === null) {
+            return redirect()->back()->withInput()->with('message_erreur', 'Vous essayer de supprimer un opérateur qui n’existe pas');
+        }
+
+        $prefixe_model->where('id_operateur', $id)->delete();
+        $operateur_model->delete($id);
+
+        return redirect()->back()->with('message_succes', 'Opérateur supprimé avec succès');
+    }
+
     // GET /operateur/prefixes
     public function prefixes()
     {
+        $id_operateur = $this->request->getGet('operateur') ?? 0;
         $prefixe_model = model('PrefixeModel');
-        $prefixes = $prefixe_model->findAll();
-        return view('Operateur/prefixes', ['prefixes' => $prefixes]);
+        $operateur_model = model('OperateurModel');
+
+        $operateurs = array_merge([['id' => 0, 'libelle' => 'Nous']], $operateur_model->findAll());
+        return view('Operateur/prefixes', [
+            'id_operateur' => $id_operateur,
+            'operateurs' => $operateurs,
+            'prefixes' => $prefixe_model->findAllByOperateur($id_operateur),
+        ]);
     }
 
     // POST /operateur/prefixes/new
     public function postPrefixesNew()
     {
-        $valeur = $this->request->getPost('valeur');
+        $data = [
+            'id_operateur' => $this->request->getPost('id_operateur'),
+            'valeur' => $this->request->getPost('valeur'),
+        ];
+
         $prefixe_model = model('PrefixeModel');
 
-        if (!$prefixe_model->validate(['valeur' => $valeur])) {
+        if (!$prefixe_model->validate($data)) {
             return redirect()->back()->with('message_erreur', $prefixe_model->errors()['valeur']);
         }
-        if ($prefixe_model->where('valeur', $valeur)->first() !== null) {
+        if ($prefixe_model->where('valeur', $data['valeur'])->first() !== null) {
             return redirect()->back()->with('message_erreur', 'Ce préfixe existe déjà');
         }
 
-        $prefixe_model->insert(['valeur' => $valeur]);
+        $prefixe_model->insert($data);
 
         return redirect()->back()->with('message_succes', 'Préfixe ajouté avec succès');
     }

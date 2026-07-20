@@ -61,6 +61,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('operateur/autres-operateurs') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/autres-operateurs*') ? 'active' : '' ?>">
+                                <i class="ph-bold ph-tag fs-5"></i> Autres opérateurs
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('operateur/prefixes') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/prefixes*') ? 'active' : '' ?>">
                                 <i class="ph-bold ph-tag fs-5"></i> Préfixes
                             </a>
