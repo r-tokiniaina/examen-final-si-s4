@@ -84,6 +84,108 @@ Dashboard
 
 </div>
 
+<!-- Tableau : Situation gain via les différents frais -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 p-3">
+            <h5 class="card-title mb-3">Situation gain via les différents frais</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Opération</th>
+                            <th class="text-end">Opérateur</th>
+                            <th class="text-end">Autres opérateurs</th>
+                            <th class="text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $grand_total = 0;
+                        $operations = ['retrait' => 'Retrait', 'transfert' => 'Transfert'];
+                        ?>
+                        <?php foreach ($operations as $cle => $libelle): ?>
+                            <?php
+                            $montant_operateur = $situation[$cle]['operateur'] ?? 0;
+                            $montant_autres    = $situation[$cle]['autres'] ?? 0;
+                            $total_ligne       = $montant_operateur + $montant_autres;
+                            $grand_total      += $total_ligne;
+                            ?>
+                            <tr>
+                                <td><?= esc($libelle) ?></td>
+                                <td class="text-end"><?= number_format($montant_operateur, 0, ',', ' ') ?> Ar</td>
+                                <td class="text-end"><?= number_format($montant_autres, 0, ',', ' ') ?> Ar</td>
+                                <td class="text-end"><?= number_format($total_ligne, 0, ',', ' ') ?> Ar</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td>Total général</td>
+                            <td class="text-end"><?= number_format(($situation['retrait']['operateur'] ?? 0) + ($situation['transfert']['operateur'] ?? 0), 0, ',', ' ') ?> Ar</td>
+                            <td class="text-end"><?= number_format(($situation['retrait']['autres'] ?? 0) + ($situation['transfert']['autres'] ?? 0), 0, ',', ' ') ?> Ar</td>
+                            <td class="text-end"><?= number_format($grand_total, 0, ',', ' ') ?> Ar</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tableau : Situation des montants à envoyer à chaque opérateur -->
+<div class="row g-4 mt-2">
+    <div class="col-12">
+        <div class="card shadow-sm border-0 p-3">
+            <h5 class="card-title mb-3">Situation des montants à envoyer à chaque opérateur</h5>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Opérateur</th>
+                            <th class="text-end">Total frais</th>
+                            <th class="text-end">Commission (%)</th>
+                            <th class="text-end">Montant à envoyer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $grand_total_frais = 0; ?>
+                        <?php $grand_total_envoi = 0; ?>
+                        <?php foreach ($montants_envoyer as $row): ?>
+                            <?php
+                            $total_frais = (float)($row['total_frais'] ?? 0);
+                            $pct = (float)($row['pct_commission'] ?? 0);
+                            $montant_envoyer = $total_frais * ($pct / 100);
+                            $grand_total_frais += $total_frais;
+                            $grand_total_envoi += $montant_envoyer;
+                            ?>
+                            <tr>
+                                <td><?= esc($row['libelle'] ?? 'Inconnu') ?></td>
+                                <td class="text-end"><?= number_format($total_frais, 0, ',', ' ') ?> Ar</td>
+                                <td class="text-end"><?= number_format($pct, 0, ',', ' ') ?> %</td>
+                                <td class="text-end"><?= number_format($montant_envoyer, 0, ',', ' ') ?> Ar</td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($montants_envoyer)): ?>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">Aucune donnée</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                    <tfoot>
+                        <tr class="fw-bold">
+                            <td>Total général</td>
+                            <td class="text-end"><?= number_format($grand_total_frais, 0, ',', ' ') ?> Ar</td>
+                            <td class="text-end">-</td>
+                            <td class="text-end"><?= number_format($grand_total_envoi, 0, ',', ' ') ?> Ar</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // Configuration commune pour rendre les graphiques responsives
     const chartOptions = {

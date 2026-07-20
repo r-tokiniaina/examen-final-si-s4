@@ -83,4 +83,66 @@ class OperationModel extends Model
 
         return $output;
     }
+
+    /**
+     * Calcule pour chaque opérateur tiers (ayant un id_operateur non nul)
+     * le total des frais perçus sur les opérations dont le numéro source
+     * correspond à l'un de leurs préfixes, ainsi que leur commission.
+     *
+     * Retourne un tableau de la forme :
+     * [
+     *   ['libelle' => 'Airtel', 'total_frais' => ..., 'pct_commission' => 10],
+     *   ['libelle' => 'Yas',    'total_frais' => ..., 'pct_commission' => 20],
+     * ]
+     */
+    public function findSituationMontantsEnvoyer(): array
+    {
+        $sql = "
+            SELECT
+                op.libelle,
+                op.pct_commission,
+                COALESCE(SUM(o.frais), 0) AS total_frais
+            FROM operations o
+            JOIN prefixes p ON SUBSTR(o.num_source, 1, 3) = p.valeur
+            JOIN operateurs op ON p.id_operateur = op.id
+            WHERE o.type IN (2, 3)
+              AND p.id_operateur IS NOT NULL
+            GROUP BY op.id, op.libelle, op.pct_commission
+            ORDER BY op.libelle
+        ";
+
+        $query = $this->db->query($sql);
+        return $query->getResultArray();
+    }
+
+    /**
+     * Calcule les gains via les frais pour chaque type d'opération (retrait/transfert),
+     * séparés entre l'opérateur (prefixes avec id_operateur IS NULL) et les autres opérateurs.
+     *
+     * Retourne un tableau de la forme :
+     * [
+     *   ['type' => 2, 'categorie' => 'operateur',     'total_frais' => ...],
+     *   ['type' => 2, 'categorie' => 'autres',        'total_frais' => ...],
+     *   ['type' => 3, 'categorie' => 'operateur',     'total_frais' => ...],
+     *   ['type' => 3, 'categorie' => 'autres',        'total_frais' => ...],
+     * ]
+     */
+    public function findSituationGainByOperateur(): array
+    {
+        $sql = "
+            SELECT
+                o.type,
+                CASE WHEN p.id_operateur IS NULL THEN 'operateur' ELSE 'autres' END AS categorie,
+                COALESCE(SUM(o.frais), 0) AS total_frais
+            FROM operations o
+            LEFT JOIN prefixes p ON SUBSTR(o.num_source, 1, 3) = p.valeur
+            WHERE o.type IN (2, 3)
+            GROUP BY o.type,
+                CASE WHEN p.id_operateur IS NULL THEN 'operateur' ELSE 'autres' END
+            ORDER BY o.type, categorie
+        ";
+
+        $query = $this->db->query($sql);
+        return $query->getResultArray();
+    }
 }

@@ -39,10 +39,39 @@ class OperateurController extends BaseController
         $frais_transfert_par_jour = [3, 19, 3, 5, 5, 3, 7];
         // $frais_retrait_par_jour = $operation_model->findAllPourTypeParJour(2, date('Y-m-d'));
         // $frais_transfert_par_jour = $operation_model->findAllPourTypeParJour(3, date('Y-m-d'));
+
+        // Situation gain via les différents frais (par opérateur)
+        $raw_data = $operation_model->findSituationGainByOperateur();
+
+        // Réorganiser les données pour faciliter l'affichage :
+        // $situation['retrait']['operateur'] = total_frais
+        // $situation['retrait']['autres']    = total_frais
+        // $situation['transfert']['operateur'] = total_frais
+        // $situation['transfert']['autres']    = total_frais
+        $types_operation = [
+            2 => 'retrait',
+            3 => 'transfert',
+        ];
+        $situation = [];
+        foreach ($types_operation as $id_type => $libelle) {
+            $situation[$libelle]['operateur'] = 0;
+            $situation[$libelle]['autres']    = 0;
+        }
+        foreach ($raw_data as $row) {
+            $lib = $types_operation[(int)$row['type']] ?? 'inconnu';
+            $cat = $row['categorie']; // 'operateur' ou 'autres'
+            $situation[$lib][$cat] = (float)$row['total_frais'];
+        }
+
+        // Situation des montants à envoyer à chaque opérateur
+        $montants_envoyer = $operation_model->findSituationMontantsEnvoyer();
+
         return view('Operateur/dashboard', [
             'nb_clients_par_jour' => $nb_clients_par_jour,
             'frais_retrait_par_jour' => $frais_retrait_par_jour,
             'frais_transfert_par_jour' => $frais_transfert_par_jour,
+            'situation' => $situation,
+            'montants_envoyer' => $montants_envoyer,
         ]);
     }
 
