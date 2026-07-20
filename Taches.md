@@ -1,0 +1,13 @@
+# Version 1: v1
+- base de données *(Ndroso)*
+    - creation table
+    - donnees
+- opérateur:
+    - login *(Toky)*
+    - page de config de préfixe *(Toky)*
+    - page de config des barèmes de frais
+    - dashboard
+- client:
+    - login
+    - page d’historique des opérations
+    - page de nouvelle opération
