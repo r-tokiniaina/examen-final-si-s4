@@ -34,11 +34,10 @@ class OperateurController extends BaseController
     public function dashboard()
     {
         $operation_model = model('OperationModel');
-        $nb_clients_par_jour = [12, 19, 3, 5, 2, 3, 7];
-        $frais_retrait_par_jour = [12, 19, 3, 5, 2, 3, 7];
-        $frais_transfert_par_jour = [3, 19, 3, 5, 5, 3, 7];
-        // $frais_retrait_par_jour = $operation_model->findAllPourTypeParJour(2, date('Y-m-d'));
-        // $frais_transfert_par_jour = $operation_model->findAllPourTypeParJour(3, date('Y-m-d'));
+        $aujourdhui = date('Y-m-d');
+        $nb_clients_par_jour = $operation_model->findNbClientsParJour($aujourdhui);
+        $frais_retrait_par_jour = $operation_model->findAllPourTypeParJour(2, $aujourdhui);
+        $frais_transfert_par_jour = $operation_model->findAllPourTypeParJour(3, $aujourdhui);
 
         // Situation gain via les différents frais (par opérateur)
         $raw_data = $operation_model->findSituationGainByOperateur();

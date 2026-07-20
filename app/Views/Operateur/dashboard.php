@@ -218,7 +218,7 @@ Dashboard
     new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+            labels: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
             datasets: [
                 {
                     label: 'Frais de retrait',

@@ -85,6 +85,40 @@ class OperationModel extends Model
     }
 
     /**
+     * Retourne un tableau de 7 éléments (Lundi à Dimanche) contenant
+     * le nombre de clients distincts ayant effectué une opération par jour
+     * pour la semaine contenant la date donnée.
+     */
+    public function findNbClientsParJour($dateInput): array
+    {
+        $date = new \DateTime($dateInput);
+        $jourSemaine = $date->format('N');
+        $lundi = clone $date;
+        $lundi->modify('-' . ($jourSemaine - 1) . ' days');
+        $dimanche = clone $lundi;
+        $dimanche->modify('+6 days');
+        $dateDebut = $lundi->format('Y-m-d 00:00:00');
+        $dateFin   = $dimanche->format('Y-m-d 23:59:59');
+
+        $sql = "
+            SELECT strftime('%%w', o.date_operation) as jour_index, COUNT(DISTINCT c.id) as nb_clients
+            FROM operations o
+            JOIN clients c ON c.numero IN (o.num_source, o.num_destination)
+            WHERE o.date_operation >= ? AND o.date_operation <= ?
+            GROUP BY strftime('%%w', o.date_operation)
+        ";
+        $query = $this->db->query($sql, [$dateDebut, $dateFin]);
+        $resultats = $query->getResultArray();
+
+        $output = array_fill(0, 7, 0);
+        foreach ($resultats as $row) {
+            $index = (int)$row['jour_index'];
+            $output[$index] = (int)$row['nb_clients'];
+        }
+        return $output;
+    }
+
+    /**
      * Calcule pour chaque opérateur tiers (ayant un id_operateur non nul)
      * le total des frais perçus sur les opérations dont le numéro source
      * correspond à l'un de leurs préfixes, ainsi que leur commission.
