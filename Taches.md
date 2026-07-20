@@ -1,7 +1,7 @@
 # Version 1: v1
-- base de données *(Ndroso)*
-    - creation table
-    - donnees
+- [x] base de données *(Ndroso)*
+    - [x] creation table
+    - [x] donnees
 - opérateur:
     - login *(Toky)*
     - page de config de préfixe *(Toky)*
