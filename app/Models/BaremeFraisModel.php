@@ -75,7 +75,7 @@ class BaremeFraisModel extends Model
         return $this->where('type_operation', $id_type_operation)->orderBy('montant_min', 'ASC')->findAll();
     }
 
-    public function calculerFrais(int $type, float $montant): float
+    public function findFraisByTypeAndMontant(int $type, float $montant): float
     {
         $row = $this->where('type_operation', $type)
                     ->where('montant_min <=', $montant)

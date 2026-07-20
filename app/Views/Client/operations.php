@@ -164,7 +164,7 @@ Historique des opérations
                         <label for="num_destination" class="form-label fw-semibold text-secondary">Numéro de destination</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-muted"><i class="ph-bold ph-phone"></i></span>
-                            <input type="text" class="form-control" id="num_destination" name="num_destination" placeholder="Ex: 033 11 223 34">
+                            <input type="text" class="form-control" id="num_destination" name="num_destination" placeholder="Ex: 0341111111,0342222222">
                         </div>
                     </div>
 
@@ -176,6 +176,16 @@ Historique des opérations
                             <span class="input-group-text bg-light fw-bold text-secondary">Ar</span>
                         </div>
                     </div>
+
+                    <div class="mb-3 d-none" id="wrapper_inclure_frais">
+                        <div class="form-check form-switch p-3 bg-light rounded border">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" id="inclure_frais" name="inclure_frais" value="1">
+                            <label class="form-check-input-label fw-semibold text-secondary" for="inclure_frais">
+                                Inclure les frais de retrait dans le montant inséré
+                            </label>
+                        </div>
+                    </div>
+
 
                     <div class="p-3 bg-light rounded border mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -207,6 +217,8 @@ Historique des opérations
 </div>
 
 <script>
+const pcts_commissions = <?= json_encode($pcts_commissions ?? []) ?>;
+
 document.addEventListener('DOMContentLoaded', function () {
     const baremes = <?= json_encode($baremes ?? []) ?>;
     const soldeActuel = <?= (float) ($solde ?? 0) ?>;
@@ -217,12 +229,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const displayFrais = document.getElementById('display_frais');
     const displayTotal = document.getElementById('display_total');
     const displaySoldeRestant = document.getElementById('display_solde_restant');
+    const wrapperInclureFrais = document.getElementById('wrapper_inclure_frais');
+    const checkboxInclureFrais = document.getElementById('inclure_frais');
 
     function updateCalculs() {
         const typeVal = parseInt(typeSelect.value);
         const montantVal = parseFloat(inputMontant.value) || 0;
 
-        let frais = 0;
+        let fraisFixes = 0;
+        let commissionVariable = 0;
+        let memeOperateur = true;
+
         if (montantVal > 0 && !isNaN(typeVal)) {
             const match = baremes.find(b =>
                 Number(b.type_operation) === typeVal &&
@@ -231,13 +248,33 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             if (match) {
-                frais = Number(match.frais);
+                fraisFixes = Number(match.frais);
             } else {
                 console.warn('Aucun barème trouvé pour :', { typeVal, montantVal, baremes });
             }
+            if (typeVal === 3) {
+                const telNettoye = inputDest.value.replace(/\s+/g, '');
+                const prefixe = telNettoye.substring(0, 3);
+
+                // Vérifie si ce préfixe possède une commission dédiée dans pcts_commissions
+                if (prefixe && pcts_commissions[prefixe] !== undefined) {
+                    const pourcentage = parseFloat(pcts_commissions[prefixe]) || 0;
+                    fraisFixes = 0;
+                    commissionVariable = montantVal * (pourcentage / 100);
+                    memeOperateur = false;
+                }
+            }
         }
 
-        const total = montantVal + frais;
+        const totalFrais = fraisFixes + commissionVariable;
+        let total = montantVal;
+
+        if ((typeVal === 2 || (typeVal === 3 && memeOperateur)) && checkboxInclureFrais.checked) {
+            total = montantVal;
+        } else if (typeVal === 2 || typeVal === 3) {
+            total = montantVal + totalFrais;
+        }
+
         let soldeRestant = soldeActuel;
 
         if (typeVal === 1) {
@@ -246,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function () {
             soldeRestant -= total;
         }
 
-        displayFrais.textContent = new Intl.NumberFormat('fr-FR').format(frais) + ' Ar';
+        displayFrais.textContent = new Intl.NumberFormat('fr-FR').format(totalFrais) + ' Ar';
         displayTotal.textContent = new Intl.NumberFormat('fr-FR').format(total) + ' Ar';
         displaySoldeRestant.textContent = new Intl.NumberFormat('fr-FR').format(soldeRestant) + ' Ar';
 
@@ -255,14 +292,22 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             displaySoldeRestant.className = 'fw-bold text-success';
         }
+
+        if (typeVal === 2 || (typeVal === 3 && memeOperateur)) {
+            wrapperInclureFrais.classList.remove('d-none');
+        } else {
+            wrapperInclureFrais.classList.add('d-none');
+            checkboxInclureFrais.checked = false; // Décoche si les conditions ne sont plus remplies
+        }
+
     }
 
     typeSelect.addEventListener('change', function () {
         if (this.value === '3') {
-            wrapperDest.style.display = 'block';
+            wrapperDest.classList.remove('d-none');
             inputDest.required = true;
         } else {
-            wrapperDest.style.display = 'none';
+            wrapperDest.classList.add('d-none');
             inputDest.required = false;
             inputDest.value = '';
         }
@@ -270,6 +315,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     inputMontant.addEventListener('input', updateCalculs);
+    inputDest.addEventListener('input', updateCalculs);
+    checkboxInclureFrais.addEventListener('change', updateCalculs);
+
+    updateCalculs();
 });
 </script>
 
