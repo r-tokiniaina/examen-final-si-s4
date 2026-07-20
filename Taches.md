@@ -2,6 +2,8 @@
 - base de données *(Ndroso)*
     - creation table
     - donnees
+- models:
+    - AdminModel *(Toky)*
 - opérateur:
     - login *(Toky)*
     - page de config de préfixe *(Toky)*

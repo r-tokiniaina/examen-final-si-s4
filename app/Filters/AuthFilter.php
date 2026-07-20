@@ -26,12 +26,10 @@ class AuthFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = session();
-        $user = $session->get('user');
+        $admin = $session->get('admin');
 
-        if ($user == null) {
-            return redirect()->to('/login')->with('message_erreur', 'Veuillez vous connecter');
-        } elseif (!in_array($user['role'], $arguments)) {
-            return redirect()->to('/login')->with('message_erreur', 'Vous n’avez pas le rôle requis pour accéder à cette page');
+        if ($admin == null) {
+            return redirect()->to('/login')->with('message_erreur', 'Vous n’êtes pas autorisé à accéder à cette page');
         }
     }
 
