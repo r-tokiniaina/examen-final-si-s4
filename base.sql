@@ -1,5 +1,13 @@
+create table operateurs (
+    id integer primary key autoincrement,
+    libelle text not null,
+    pct_commission real
+);
+
+
 create table prefixes (
 	id integer primary key autoincrement,
+	id_operateur integer,
 	valeur text not null
 );
 
@@ -90,3 +98,28 @@ insert into operations (type, montant, frais, num_source, num_destination, date_
 
 insert into admins (email, mot_de_passe) values
 	('admin@root.dev', '$2y$10$s0gTQ0.ihOLNJN9PZ.jVruktyEGeZsWZ6HsuoJr833A9yzG5Stw.u'); -- 1234
+
+
+
+create view v_mouvements as
+select o.num_destination as numero, (o.montant + o.frais) as montant, o.date_operation
+from operations o
+where o.type = 1
+union
+select o.num_source, -(o.montant + o.frais), o.date_operation
+from operations o
+where o.type = 2
+union
+select o.num_source, -(o.montant + o.frais), o.date_operation
+from operations o
+where o.type = 3
+union
+select o.num_destination, (o.montant + o.frais), o.date_operation
+from operations o
+where o.type = 3;
+
+
+create view v_soldes as
+select m.numero, SUM(m.montant) as montant
+from v_mouvements m
+group by m.numero;
