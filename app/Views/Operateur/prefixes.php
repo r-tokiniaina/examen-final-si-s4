@@ -40,48 +40,27 @@ Gestion des Préfixes
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Exemple 032 -->
-                        <tr>
-                            <td><span class="badge bg-secondary fs-6 px-3 py-2">032</span></td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <!-- Bouton de modification : passe le mode, l'action spécifique et la valeur actuelle -->
-                                    <button type="button" class="btn btn-outline-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#prefixModal"
-                                            data-mode="edit"
-                                            data-value="032"
-                                            data-action="<?= base_url('operateur/prefixes/1/update') ?>"
-                                            title="Modifier">
-                                        <i class="ph-bold ph-pencil"></i>
-                                    </button>
-                                    <a href="<?= base_url('operateur/prefixes/1/delete') ?>" class="btn btn-outline-danger" onclick="return confirm('Supprimer ce préfixe ?')" title="Supprimer">
-                                        <i class="ph-bold ph-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <!-- Exemple 033 -->
-                        <tr>
-                            <td><span class="badge bg-secondary fs-6 px-3 py-2">033</span></td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-warning"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#prefixModal"
-                                            data-mode="edit"
-                                            data-value="033"
-                                            data-action="<?= base_url('operateur/prefixes/2/update') ?>"
-                                            title="Modifier">
-                                        <i class="ph-bold ph-pencil"></i>
-                                    </button>
-                                    <a href="<?= base_url('operateur/prefixes/2/delete') ?>" class="btn btn-outline-danger" onclick="return confirm('Supprimer ce préfixe ?')" title="Supprimer">
-                                        <i class="ph-bold ph-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
+                        <?php foreach ($prefixes as $prefixe): ?>
+                            <tr>
+                                <td><span class="badge bg-secondary fs-6 px-3 py-2"><?= $prefixe['valeur'] ?></span></td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-warning"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#prefixModal"
+                                                data-mode="edit"
+                                                data-value="<?= $prefixe['valeur'] ?>"
+                                                data-action="<?= base_url('operateur/prefixes/' . $prefixe['id'] . '/update') ?>"
+                                                title="Modifier">
+                                            <i class="ph-bold ph-pencil"></i>
+                                        </button>
+                                        <a href="<?= base_url('operateur/prefixes/' . $prefixe['id'] . '/delete') ?>" class="btn btn-outline-danger" onclick="return confirm('Supprimer ce préfixe ?')" title="Supprimer">
+                                            <i class="ph-bold ph-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
@@ -104,7 +83,7 @@ Gestion des Préfixes
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="prefix_value" class="form-label">Code préfixe</label>
-                        <input type="text" class="form-control" id="prefix_value" name="prefix" placeholder="Ex: 033" required>
+                        <input type="text" class="form-control" id="prefix_value" name="valeur" placeholder="Ex: 033" required>
                     </div>
                 </div>
                 <div class="modal-footer">
