@@ -6,13 +6,11 @@ Historique des opérations
 
 <?= $this->section('content') ?>
 
-<!-- En-tête de la page -->
 <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-4">
     <div>
         <h1 class="h2 fw-bold mb-1">Historique des opérations</h1>
         <p class="text-muted mb-0">Consultez l'ensemble de vos dépôts, retraits et transferts</p>
     </div>
-    <!-- Bouton d'ouverture du Popup -->
     <button type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-medium"
             data-bs-toggle="modal"
             data-bs-target="#operationModal">
@@ -21,7 +19,6 @@ Historique des opérations
     </button>
 </div>
 
-<!-- Rappel du Montant Restant / Solde Actuel -->
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card border-0 shadow-sm bg-primary text-white">
@@ -40,7 +37,6 @@ Historique des opérations
     </div>
 </div>
 
-<!-- Messages Flash (Succès / Erreur) -->
 <?php if (session()->getFlashdata('success')): ?>
     <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
         <div class="d-flex align-items-center">
@@ -61,11 +57,9 @@ Historique des opérations
     </div>
 <?php endif; ?>
 
-<!-- Carte contenant le tableau -->
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <?php if (empty($operations)): ?>
-            <!-- État vide si aucune opération -->
             <div class="text-center py-5">
                 <div class="bg-light d-inline-block p-3 rounded-circle mb-3">
                     <i class="ph-bold ph-receipt text-muted fs-1"></i>
@@ -77,7 +71,6 @@ Historique des opérations
                 </button>
             </div>
         <?php else: ?>
-            <!-- Tableau responsive -->
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
                     <thead class="table-light">
@@ -94,12 +87,10 @@ Historique des opérations
                     <tbody>
                         <?php foreach ($operations as $op): ?>
                             <tr>
-                                <!-- Date basée sur date_operation -->
                                 <td class="ps-4 text-body-secondary fw-medium">
                                     <?= date('d/m/Y H:i', strtotime($op['date_operation'])) ?>
                                 </td>
 
-                                <!-- Badge du type d'opération -->
                                 <td>
                                     <?php if ($op['type'] == 1): ?>
                                         <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-2 py-1">
@@ -116,27 +107,22 @@ Historique des opérations
                                     <?php endif; ?>
                                 </td>
 
-                                <!-- Numéro Source -->
                                 <td class="fw-medium">
                                     <?= !empty($op['num_source']) ? esc($op['num_source']) : '<span class="text-muted">−</span>' ?>
                                 </td>
 
-                                <!-- Numéro Destination -->
                                 <td class="fw-medium">
                                     <?= !empty($op['num_destination']) ? esc($op['num_destination']) : '<span class="text-muted">−</span>' ?>
                                 </td>
 
-                                <!-- Montant -->
                                 <td class="text-end fw-bold">
                                     <?= number_format($op['montant'], 0, ',', ' ') ?> Ar
                                 </td>
 
-                                <!-- Frais -->
                                 <td class="text-end text-muted">
                                     <?= number_format($op['frais'], 0, ',', ' ') ?> Ar
                                 </td>
 
-                                <!-- Total (Montant + Frais) -->
                                 <td class="pe-4 text-end fw-bold text-primary">
                                     <?= number_format($op['montant'] + $op['frais'], 0, ',', ' ') ?> Ar
                                 </td>
@@ -149,9 +135,6 @@ Historique des opérations
     </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODALE POP-UP : NOUVELLE OPÉRATION         -->
-<!-- ========================================== -->
 <div class="modal fade" id="operationModal" tabindex="-1" aria-labelledby="operationModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -167,7 +150,6 @@ Historique des opérations
                 <?= csrf_field() ?>
 
                 <div class="modal-body p-4">
-                    <!-- Sélection du type -->
                     <div class="mb-3">
                         <label for="type" class="form-label fw-semibold text-secondary">Type d'opération</label>
                         <select name="type" id="type" class="form-select" required>
@@ -178,7 +160,6 @@ Historique des opérations
                         </select>
                     </div>
 
-                    <!-- Numéro de destination -->
                     <div class="mb-3" id="wrapper_num_destination">
                         <label for="num_destination" class="form-label fw-semibold text-secondary">Numéro de destination</label>
                         <div class="input-group">
@@ -187,13 +168,27 @@ Historique des opérations
                         </div>
                     </div>
 
-                    <!-- Montant -->
                     <div class="mb-3">
                         <label for="montant" class="form-label fw-semibold text-secondary">Montant (Ar)</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light text-muted"><i class="ph-bold ph-coins"></i></span>
                             <input type="number" class="form-control" id="montant" name="montant" placeholder="Ex: 10000" min="100" step="50" required>
                             <span class="input-group-text bg-light fw-bold text-secondary">Ar</span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">Frais d'opération :</span>
+                            <span class="fw-bold text-dark" id="display_frais">0 Ar</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted small">Total prélevé/crédité :</span>
+                            <span class="fw-bold text-primary" id="display_total">0 Ar</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center border-top pt-2 mt-2">
+                            <span class="text-muted small fw-semibold">Solde restant estimé :</span>
+                            <span class="fw-bold text-success" id="display_solde_restant"><?= number_format($solde ?? 0, 0, ',', ' ') ?> Ar</span>
                         </div>
                     </div>
                 </div>
@@ -213,20 +208,68 @@ Historique des opérations
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const baremes = <?= json_encode($baremes ?? []) ?>;
+    const soldeActuel = <?= (float) ($solde ?? 0) ?>;
     const typeSelect = document.getElementById('type');
     const wrapperDest = document.getElementById('wrapper_num_destination');
     const inputDest = document.getElementById('num_destination');
+    const inputMontant = document.getElementById('montant');
+    const displayFrais = document.getElementById('display_frais');
+    const displayTotal = document.getElementById('display_total');
+    const displaySoldeRestant = document.getElementById('display_solde_restant');
+
+    function updateCalculs() {
+        const typeVal = parseInt(typeSelect.value);
+        const montantVal = parseFloat(inputMontant.value) || 0;
+
+        let frais = 0;
+        if (montantVal > 0 && !isNaN(typeVal)) {
+            const match = baremes.find(b =>
+                Number(b.type_operation) === typeVal &&
+                montantVal >= Number(b.montant_min) &&
+                montantVal <= Number(b.montant_max)
+            );
+
+            if (match) {
+                frais = Number(match.frais);
+            } else {
+                console.warn('Aucun barème trouvé pour :', { typeVal, montantVal, baremes });
+            }
+        }
+
+        const total = montantVal + frais;
+        let soldeRestant = soldeActuel;
+
+        if (typeVal === 1) {
+            soldeRestant += montantVal;
+        } else if (typeVal === 2 || typeVal === 3) {
+            soldeRestant -= total;
+        }
+
+        displayFrais.textContent = new Intl.NumberFormat('fr-FR').format(frais) + ' Ar';
+        displayTotal.textContent = new Intl.NumberFormat('fr-FR').format(total) + ' Ar';
+        displaySoldeRestant.textContent = new Intl.NumberFormat('fr-FR').format(soldeRestant) + ' Ar';
+
+        if (soldeRestant < 0) {
+            displaySoldeRestant.className = 'fw-bold text-danger';
+        } else {
+            displaySoldeRestant.className = 'fw-bold text-success';
+        }
+    }
 
     typeSelect.addEventListener('change', function () {
-        if (this.value === '3') { // Transfert
+        if (this.value === '3') {
             wrapperDest.style.display = 'block';
             inputDest.required = true;
-        } else { // Dépôt ou Retrait
+        } else {
             wrapperDest.style.display = 'none';
             inputDest.required = false;
             inputDest.value = '';
         }
+        updateCalculs();
     });
+
+    inputMontant.addEventListener('input', updateCalculs);
 });
 </script>
 
