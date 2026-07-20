@@ -47,6 +47,14 @@ class OperationModel extends Model
     protected $afterDelete    = [];
 
 
+    public function findAllPourNumero($numero)
+    {
+        return $this->where('num_source', $numero)
+            ->orWhere('num_destination', $numero)
+            ->orderBy('date_operation', 'DESC')
+            ->findAll();
+    }
+
     public function findAllPourTypeParJour($type, $dateInput): array
     {
         // 1. Calcul du lundi et du dimanche de la même semaine
