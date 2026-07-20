@@ -6,23 +6,23 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->addRedirect('/', '/login');
-$routes->get('login', 'ClientController::login');
+$routes->get('login', 'ClientController::login', ['filter' => 'auth:bypass,client']);
 $routes->post('login', 'ClientController::postLogin');
 $routes->get('logout', 'ClientController::logout');
 
-// Groupe Espace Client
-$routes->group('client', function ($routes) {
+$routes->group('client', ['filter' => 'auth:client'], function ($routes) {
     $routes->get('operations', 'ClientController::operations');
-    $routes->post('operations/new', 'ClientController::newOperation');
+    $routes->post('operations/new', 'ClientController::postOperationsNew');
+    $routes->get('operations/calcul-frais', 'ClientController::operationsCalculFrais');
 });
 
-// Redirections et Groupe Opérateur / Admin
+
 $routes->addRedirect('/admin', '/operateur/login');
 $routes->addRedirect('/operateur', '/operateur/login');
-$routes->get('/operateur/login', 'OperateurController::login');
+$routes->get('/operateur/login', 'OperateurController::login', ['filter' => 'auth:bypass,admin']);
 $routes->post('/operateur/login', 'OperateurController::postLogin');
 
-$routes->group('operateur', ['filter' => 'auth'], function ($routes) {
+$routes->group('operateur', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('dashboard', 'OperateurController::dashboard');
 
     $routes->get('autres-operateurs', 'OperateurController::autresOperateurs');

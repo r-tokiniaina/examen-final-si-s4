@@ -60,4 +60,9 @@ class PrefixeModel extends Model
             return $this->where('id_operateur', $id_operateur)->findAll();
         }
     }
+
+    public function findByNumero($numero)
+    {
+        return $this->where('valeur', substr($numero, 0, 3))->first();
+    }
 }

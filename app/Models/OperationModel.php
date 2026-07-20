@@ -187,4 +187,31 @@ class OperationModel extends Model
         $query = $this->db->query($sql);
         return $query->getResultArray();
     }
+
+    public function calculerFrais($id_type_operation, $montant, $nums_destination, $inclure_frais)
+    {
+        $prefixe_model = model('PrefixeModel');
+        $bareme_frais_model = model('BaremeFraisModel');
+        $operateur_model = model('OperateurModel');
+
+        if ($id_type_operation == 3 && empty($nums_destination)) {
+            return false;
+        }
+        $prefixe = $prefixe_model->findByNumero($nums_destination[0]);
+        if ($id_type_operation != 3 || $prefixe['id_operateur'] === null) { // Même opérateur
+            $frais = $bareme_frais_model->findFraisByTypeAndMontant($id_type_operation, $montant);
+            if ($inclure_frais === true) {
+                $montant -= $frais;
+            }
+        }
+        else {
+            $operateur = $operateur_model->find($prefixe['id_operateur']);
+            $frais = (int) ($montant * $operateur['pct_commission'] / 100.0);
+        }
+
+        return [
+            'montant' => $montant,
+            'frais' => $frais,
+        ];
+    }
 }

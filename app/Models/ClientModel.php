@@ -23,32 +23,52 @@ class ClientModel extends Model
 
     // Règles de validation pour les futures insertions/mises à jour
     protected $validationRules      = [
-        'numero' => 'required|max_length[10]|is_unique[clients.numero,id,{id}]'
+        'numero' => 'required|max_length[13]|is_unique[clients.numero,id,{id}]'
     ];
 
     protected $validationMessages   = [
         'numero' => [
             'required'   => 'Le numéro est obligatoire.',
-            'max_length' => 'Le numéro ne doit pas dépasser 10 caractères.',
-            'is_unique'  => 'Ce numéro de client est déjà enregistré.'
+            'max_length' => 'Le format du numéro est incorrect.',
+            'is_unique'  => 'Ce numéro est déjà enregistré.'
         ]
     ];
 
     protected $skipValidation       = false;
 
-    // ==========================================
-    // MÉTHODES PERSONNALISÉES (Optionnel mais recommandé)
-    // ==========================================
 
-    /**
-     * Récupère un client directement via son numéro.
-     * Cette méthode centralise la requête SQL pour garder le contrôleur propre.
-     *
-     * @param string $numero
-     * @return array|null
-     */
-    public function getClientByNumero(string $numero)
+    public function findOrInsert($numero)
     {
-        return $this->where('numero', $numero)->first();
+        $prefixe_model = model('PrefixeModel');
+        $prefixes = array_column($prefixe_model->findAllByOperateur(null), 'valeur');
+
+        $numero = $this->formatNumero($numero, $prefixes);
+
+        if ($numero !== null) {
+            $client = $this->where('numero', $numero)->first();
+            if ($client == null) {
+                $this->insert(['numero' => $numero]);
+                $client = $this->where('numero', $numero)->first();
+            }
+            return $client;
+        } else {
+            return null;
+        }
+    }
+
+    public function formatNumero($numero, $prefixes = null)
+    {
+        $numero = str_replace(' ', '', $numero ?? '');
+
+        $prefixe_model = model('PrefixeModel');
+        $prefixes = $prefixes ?? array_column($prefixe_model->findAll(), 'valeur');
+
+        $pattern = '/^(' . implode('|', $prefixes) . ')(\d{2})(\d{3})(\d{2})$/';
+
+        if (preg_match($pattern, $numero)) {
+            return preg_replace($pattern, '$1 $2 $3 $4', $numero);
+        } else {
+            return null;
+        }
     }
 }

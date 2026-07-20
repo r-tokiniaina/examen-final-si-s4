@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\ClientModel;
-
 class ClientController extends BaseController
 {
     public function __construct()
@@ -15,36 +13,30 @@ class ClientController extends BaseController
     // AUTHENTIFICATION
     // ==========================================
 
+    // GET /login
     public function login()
     {
-        if (session()->get('client_logged_in')) {
-            return redirect()->to('/client/operations');
-        }
-
         return view('Client/login');
     }
 
+    // POST /login
     public function postLogin()
     {
-        $numero = trim($this->request->getPost('numero') ?? '');
-        $clientModel = new ClientModel();
+        $numero = $this->request->getPost('numero');
 
-        $client = $clientModel->where('numero', $numero)->first();
+        $client_model = model('ClientModel');
 
-        if ($client) {
-            $sessionData = [
-                'client_id'        => $client['id'],
-                'client_numero'    => $client['numero'],
-                'client_logged_in' => true
-            ];
-            session()->set($sessionData);
+        $client = $client_model->findOrInsert($numero);
 
-            return redirect()->to('/client/operations')->with('message_succes', 'Connexion réussie.');
+        if ($client === null) {
+            return redirect()->back()->with('message_erreur', 'Numéro de téléphone invalide');
+        } else {
+            session()->set('client', $client);
+            return redirect()->to('/client/operations')->with('message_succes', 'Connexion réussie');
         }
-
-        return redirect()->back()->with('message_erreur', 'Numéro de téléphone introuvable.');
     }
 
+    // POST /logout
     public function logout()
     {
         session()->destroy();
@@ -55,182 +47,117 @@ class ClientController extends BaseController
     // ESPACE CLIENT : OPÉRATIONS
     // ==========================================
 
+    // GET /client/operations
     public function operations()
     {
-        if ($redirect = $this->checkAuth()) {
-            return $redirect;
-        }
-
-        $solde_model = model('SoldeModel');
         $operation_model = model('OperationModel');
-        $prefixe_model = model('PrefixeModel');
-        $bareme_frais_model = model('BaremeFraisModel');
+        $solde_model = model('SoldeModel');
 
-        $numeroClient = session()->get('client_numero');
+        $client = session()->get('client');
 
-        $prefixes = $prefixe_model->join('operateurs', 'id_operateur = operateurs.id')
-                                   ->select('valeur, pct_commission')
-                                   ->findAll();
-        $pcts_commissions = array_column($prefixes, 'pct_commission', 'valeur');
+        $operations = $operation_model->findAllPourNumero($client['numero']);
+        $solde = $solde_model->find($client['numero'])['montant'] ?? 0;
 
-        $operations = $operation_model->findAllPourNumero($numeroClient);
-
-        $solde = $solde_model->find($numeroClient)['montant'];
-
-        $data = [
-            'operations'       => $operations,
-            'baremes'          => $bareme_frais_model->findAll(),
-            'pcts_commissions' => $pcts_commissions,
-            'solde'            => $solde
-        ];
-
-        return view('Client/operations', $data);
+        return view('Client/operations', [
+            'operations' => $operations,
+            'solde' => $solde,
+        ]);
     }
 
-    public function newOperation()
+    // POST /client/operations/new
+    public function postOperationsNew()
     {
-        if ($redirect = $this->checkAuth()) {
-            return $redirect;
-        }
+        $id_type_operation = (int) $this->request->getPost('type');
+        $montant = (int) $this->request->getPost('montant');
+        $num_destination = trim($this->request->getPost('num_destination') ?? '');
+        $inclure_frais = (bool) $this->request->getPost('inclure_frais');
 
-        $bareme_frais_model = model('BaremeFraisModel');
+        $client_model = model('ClientModel');
         $operation_model = model('OperationModel');
-        $prefixe_model = model('PrefixeModel');
+        $solde_model = model('SoldeModel');
 
-        $prefixes = $prefixe_model->join('operateurs', 'id_operateur = operateurs.id')
-                                   ->select('valeur, pct_commission')
-                                   ->findAll();
-        $pcts_commissions = array_column($prefixes, 'pct_commission', 'valeur');
-
-        $numeroClient = session()->get('client_numero');
-
-        $type           = (int) $this->request->getPost('type');
-        $montant        = (int) $this->request->getPost('montant');
-        $numDestination = trim($this->request->getPost('num_destination') ?? '');
-        $inclureFrais   = (bool) $this->request->getPost('inclure_frais');
-
-
-        $source      = '';
-        $destination = '';
-
-        if ($type == 1) {
-            $destination = $numeroClient;
+        $nums_destination_bruts = explode(',', $num_destination);
+        $nums_destination = [];
+        foreach ($nums_destination_bruts as $num_brut) {
+            $num = $client_model->formatNumero($num_brut);
+            if ($id_type_operation == 3 && $num === null) {
+                return redirect()->back()->with('message_erreur', 'Un numéro de destination est invalide');
+            }
+            $nums_destination[] = $num;
         }
-        else if ($type == 2) {
-            $source = $numeroClient;
+        $info_montant = $operation_model->calculerFrais($id_type_operation, $montant, $nums_destination, $inclure_frais);
+
+        $client = session()->get('client');
+
+        $solde = $solde_model->find($client['numero'])['montant'] ?? 0;
+        if ($id_type_operation != 1 && $info_montant['montant'] + $info_montant['frais'] > $solde) {
+            return redirect()->back()->with('message_erreur', 'Votre solde est insuffisant');
         }
 
-        if ($type == 3) {
-            $source = $numeroClient;
-            $destinations = explode(',', $numDestination);
+        if ($id_type_operation == 3) { // Transfert
+            $source = $client['numero'];
+            $destinations = $nums_destination;
 
-            // 1. Nettoyer complètement la chaîne en enlevant espaces, virgules et points-virgules
-            $chaineBrute = preg_replace('/[,;\s]+/', '', $numDestination);
-            $destinations = [];
-
-            // 2. Extraire la liste des numéros selon le même format que le JS
-            if (strlen($chaineBrute) <= 10) {
-                if (!empty($chaineBrute)) {
-                    $destinations[] = $chaineBrute;
-                }
-            } else {
-                // Découpe par blocs de 9 ou 10 chiffres (ex: commençant par 03 ou 3)
-                preg_match_all('/(03\d{7}|3\d{7})/', $chaineBrute, $matches);
-                $destinations = $matches[0] ?? [];
+            if (empty($destinations)) {
+                return redirect()->back()->with('message_erreur', 'Aucun numéro valide pour le transfert');
             }
 
-            // Déterminer s'ils appartiennent tous au même opérateur avec commission
-            $memeOperateur = false;
-            $pourcentageCommission = 0;
-
-            if (!empty($destinations)) {
-                $premierPrefixe = null;
-                $tousMemePrefixeValide = true;
-
-                foreach ($destinations as $d) {
-                    // Récupère le préfixe à 3 chiffres (ajoute le '0' si l'utilisateur a écrit '3X...')
-                    $prefixe = str_starts_with($d, '0') ? substr($d, 0, 3) : '0' . substr($d, 0, 2);
-
-                    if (!isset($pcts_commissions[$prefixe])) {
-                        $tousMemePrefixeValide = false;
-                        break;
-                    }
-
-                    if ($premierPrefixe === null) {
-                        $premierPrefixe = $prefixe;
-                    } elseif ($prefixe !== $premierPrefixe) {
-                        $tousMemePrefixeValide = false;
-                        break;
-                    }
-                }
-
-                if ($tousMemePrefixeValide && $premierPrefixe !== null) {
-                    $memeOperateur = true;
-                    $pourcentageCommission = (float)$pcts_commissions[$premierPrefixe];
-                }
-            }
-
-            // 3. Calcul des frais finaux par transaction
-            if ($memeOperateur) {
-                // Si même opérateur : frais fixes annulés, place à la commission variable
-                $fraisUnitaire = $montant * ($pourcentageCommission / 100);
-            } else {
-                // Sinon : barème classique récupéré depuis la base de données
-                $fraisUnitaire = (int) $bareme_frais_model->findFraisByTypeAndMontant($type, $montant);
-            }
-
-            // 4. Insertion des opérations individuelles
             $date = date('Y-m-d H:i:s');
             foreach ($destinations as $d) {
-                // Si l'option 'inclure_frais' est cochée, on ajuste le montant net envoyé
-                $montantFinal = $montant;
-                if ($inclureFrais && $memeOperateur) {
-                    $montantFinal = $montant - $fraisUnitaire;
-                }
-
-                $data = [
-                    'type'            => $type,
-                    'montant'         => $montantFinal,
-                    'frais'           => $fraisUnitaire,
+                $operation_model->insert([
+                    'type'            => $id_type_operation,
+                    'montant'         => (int) $info_montant['montant'] / count($destinations),
+                    'frais'           => (int) $info_montant['frais'] / count($destinations),
                     'num_source'      => $source,
                     'num_destination' => $d,
                     'date_operation'  => $date
-                ];
-                $operation_model->insert($data);
+                ]);
             }
-        } else {
-            // Logique pour Dépôt (1) et Retrait (2)
-            $frais = (int) $bareme_frais_model->findFraisByTypeAndMontant($type, $montant);
-            $montantFinal = $montant;
+        } else { // Dépôt et retrait
+            $source      = null;
+            $destination = null;
 
-            // Retrait avec option inclure_frais cochée
-            if ($type == 2 && $inclureFrais) {
-                $montantFinal = $montant - $frais;
+            if ($id_type_operation == 1) { // Dépôt
+                $destination = $client['numero'];
             }
-            $data = [
-                'type'            => $type,
-                'montant'         => $montantFinal,
-                'frais'           => $frais,
+            else if ($id_type_operation == 2) { // Retrait
+                $source = $client['numero'];
+            }
+
+            $operation_model->insert([
+                'type'            => $id_type_operation,
+                'montant'         => (int) $info_montant['montant'],
+                'frais'           => (int) $info_montant['frais'],
                 'num_source'      => $source,
                 'num_destination' => $destination,
                 'date_operation'  => date('Y-m-d H:i:s')
-            ];
-            $operation_model->insert($data);
+            ]);
         }
 
         return redirect()->to('/client/operations')->with('message_succes', 'Opération enregistrée avec succès.');
     }
 
-
-    // ==========================================
-    // MÉTHODES PRIVÉES DE CALCUL & AUTH
-    // ==========================================
-
-    private function checkAuth()
+    // GET /client/operations/calcul-frais
+    public function operationsCalculFrais()
     {
-        if (!session()->get('client_logged_in')) {
-            return redirect()->to('/login');
+        $id_type_operation = (int) $this->request->getGet('type');
+        $montant = (int) $this->request->getGet('montant');
+        $num_destination = trim($this->request->getGet('num_destination') ?? '');
+        $inclure_frais = (bool) $this->request->getGet('inclure_frais');
+
+        $client_model = model('ClientModel');
+        $operation_model = model('OperationModel');
+
+        $nums_destination_bruts = explode(',', $num_destination);
+        $nums_destination = [];
+        foreach ($nums_destination_bruts as $num_brut) {
+            $num = $client_model->formatNumero($num_brut);
+            if ($id_type_operation === 3 && $num === null) {
+                return $this->response->setJSON(false);
+            }
+            $nums_destination[] = $num;
         }
-        return null;
+
+        return $this->response->setJSON($operation_model->calculerFrais($id_type_operation, $montant, $nums_destination, $inclure_frais));
     }
 }

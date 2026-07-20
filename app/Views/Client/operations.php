@@ -217,11 +217,8 @@ Historique des opérations
 </div>
 
 <script>
-const pcts_commissions = <?= json_encode($pcts_commissions ?? []) ?>;
-
 document.addEventListener('DOMContentLoaded', function () {
-    const baremes = <?= json_encode($baremes ?? []) ?>;
-    const soldeActuel = <?= (float) ($solde ?? 0) ?>;
+    const soldeActuel = <?= (int) ($solde ?? 0) ?>;
     const typeSelect = document.getElementById('type');
     const wrapperDest = document.getElementById('wrapper_num_destination');
     const inputDest = document.getElementById('num_destination');
@@ -236,70 +233,30 @@ document.addEventListener('DOMContentLoaded', function () {
         const typeVal = parseInt(typeSelect.value);
         const montantVal = parseFloat(inputMontant.value) || 0;
 
-        let fraisFixes = 0;
-        let commissionVariable = 0;
-        let memeOperateur = true;
+        fetch('<?= base_url('/client/operations/calcul-frais') ?>'
+                + '?type=' + typeVal
+                + '&montant=' + montantVal
+                + '&num_destination=' + inputDest.value
+                + '&inclure_frais=' + checkboxInclureFrais.checked
+            )
+            .then(response => response.json())
+            .then(data => {
+                if (data != false) {
+                    let soldeRestant = soldeActuel - data.montant - data.frais;
+                    if (typeVal === 1) {
+                        soldeRestant = soldeActuel + data.montant;
+                    }
+                    displayFrais.textContent = new Intl.NumberFormat('fr-FR').format(data.frais) + ' Ar';
+                    displayTotal.textContent = new Intl.NumberFormat('fr-FR').format(data.montant + data.frais) + ' Ar';
+                    displaySoldeRestant.textContent = new Intl.NumberFormat('fr-FR').format(soldeRestant) + ' Ar';
 
-        if (montantVal > 0 && !isNaN(typeVal)) {
-            const match = baremes.find(b =>
-                Number(b.type_operation) === typeVal &&
-                montantVal >= Number(b.montant_min) &&
-                montantVal <= Number(b.montant_max)
-            );
-
-            if (match) {
-                fraisFixes = Number(match.frais);
-            } else {
-                console.warn('Aucun barème trouvé pour :', { typeVal, montantVal, baremes });
-            }
-            if (typeVal === 3) {
-                const telNettoye = inputDest.value.replace(/\s+/g, '');
-                const prefixe = telNettoye.substring(0, 3);
-
-                // Vérifie si ce préfixe possède une commission dédiée dans pcts_commissions
-                if (prefixe && pcts_commissions[prefixe] !== undefined) {
-                    const pourcentage = parseFloat(pcts_commissions[prefixe]) || 0;
-                    fraisFixes = 0;
-                    commissionVariable = montantVal * (pourcentage / 100);
-                    memeOperateur = false;
+                    if (soldeRestant < 0) {
+                        displaySoldeRestant.className = 'fw-bold text-danger';
+                    } else {
+                        displaySoldeRestant.className = 'fw-bold text-success';
+                    }
                 }
-            }
-        }
-
-        const totalFrais = fraisFixes + commissionVariable;
-        let total = montantVal;
-
-        if ((typeVal === 2 || (typeVal === 3 && memeOperateur)) && checkboxInclureFrais.checked) {
-            total = montantVal;
-        } else if (typeVal === 2 || typeVal === 3) {
-            total = montantVal + totalFrais;
-        }
-
-        let soldeRestant = soldeActuel;
-
-        if (typeVal === 1) {
-            soldeRestant += montantVal;
-        } else if (typeVal === 2 || typeVal === 3) {
-            soldeRestant -= total;
-        }
-
-        displayFrais.textContent = new Intl.NumberFormat('fr-FR').format(totalFrais) + ' Ar';
-        displayTotal.textContent = new Intl.NumberFormat('fr-FR').format(total) + ' Ar';
-        displaySoldeRestant.textContent = new Intl.NumberFormat('fr-FR').format(soldeRestant) + ' Ar';
-
-        if (soldeRestant < 0) {
-            displaySoldeRestant.className = 'fw-bold text-danger';
-        } else {
-            displaySoldeRestant.className = 'fw-bold text-success';
-        }
-
-        if (typeVal === 2 || (typeVal === 3 && memeOperateur)) {
-            wrapperInclureFrais.classList.remove('d-none');
-        } else {
-            wrapperInclureFrais.classList.add('d-none');
-            checkboxInclureFrais.checked = false; // Décoche si les conditions ne sont plus remplies
-        }
-
+            });
     }
 
     typeSelect.addEventListener('change', function () {

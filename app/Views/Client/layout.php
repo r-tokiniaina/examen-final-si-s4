@@ -1,3 +1,10 @@
+<?php
+
+$solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'] ?? 0;
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -69,7 +76,7 @@
                         <!-- Montant / Solde (AU-DESSUS de la ligne) -->
                         <div class="d-flex align-items-center gap-2 fw-bold fs-5 mb-3 px-1" style="color: #20c997;">
                             <i class="ph-bold ph-coins text-warning fs-4"></i>
-                            <span><?= number_format($solde ?? 0, 0, ',', ' ') ?> Ar</span>
+                            <span><?= number_format($solde, 0, ',', ' ') ?> Ar</span>
                         </div>
 
                         <!-- Ligne de séparation blanche / claire -->
@@ -79,7 +86,7 @@
                             <div class="d-flex align-items-center justify-content-between px-1">
                                 <div class="d-flex align-items-center gap-2 text-white fw-semibold">
                                     <i class="ph-bold ph-phone text-primary fs-5"></i>
-                                    <span><?= esc(session()->get('client_numero') ?? '−') ?></span>
+                                    <span><?= esc(session()->get('client')['numero']) ?></span>
                                 </div>
                                 <a href="<?= base_url('logout') ?>"
                                    class="btn btn-sm btn-outline-danger border-0 p-1 d-flex align-items-center justify-content-center"

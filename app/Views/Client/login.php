@@ -11,23 +11,23 @@
 
 <!-- Gestion des messages flash -->
 <div class="toast-container position-fixed top-0 start-50 translate-middle-x mt-4">
-    <?php if (session()->getFlashdata('error')): ?>
+    <?php if (session()->getFlashdata('message_erreur')): ?>
         <div class="toast show text-bg-danger">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="ph-bold ph-seal-warning mx-1"></i>
-                    <span class="fw-semibold"><?= session()->getFlashdata('error') ?></span>
+                    <span class="fw-semibold"><?= session()->getFlashdata('message_erreur') ?></span>
                 </div>
                 <button type="button" class="btn-close btn-close-white m-auto me-3" data-bs-dismiss="toast"></button>
             </div>
         </div>
     <?php endif; ?>
-    <?php if (session()->getFlashdata('success')): ?>
+    <?php if (session()->getFlashdata('message_succes')): ?>
         <div class="toast show text-bg-success">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="ph-bold ph-seal-check mx-1"></i>
-                    <span class="fw-semibold"><?= session()->getFlashdata('success') ?></span>
+                    <span class="fw-semibold"><?= session()->getFlashdata('message_succes') ?></span>
                 </div>
                 <button type="button" class="btn-close btn-close-white m-auto me-3" data-bs-dismiss="toast"></button>
             </div>

@@ -161,6 +161,9 @@ class OperateurController extends BaseController
             'id_operateur' => $this->request->getPost('id_operateur'),
             'valeur' => $this->request->getPost('valeur'),
         ];
+        if ($data['id_operateur'] == 0) {
+            $data['id_operateur'] = null;
+        }
 
         $prefixe_model = model('PrefixeModel');
 

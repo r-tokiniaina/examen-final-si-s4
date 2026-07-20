@@ -26,10 +26,23 @@ class AuthFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = session();
-        $admin = $session->get('admin');
 
-        if ($admin == null) {
-            return redirect()->to('/login')->with('message_erreur', 'Vous n’êtes pas autorisé à accéder à cette page');
+        if (in_array('bypass', $arguments)) {
+            if ($session->has('admin')) {
+                return redirect()->to('/operateur/dashboard');
+            } else if ($session->has('client')) {
+                return redirect()->to('/client/operations');
+            }
+        } else {
+            if (in_array('admin', $arguments)) {
+                if (!$session->has('admin')) {
+                    return redirect()->to('/operateur/login')->with('message_erreur', 'Vous n’êtes pas autorisé à accéder à cette page');
+                }
+            } else if (in_array('client', $arguments)) {
+                if (!$session->has('client')) {
+                    return redirect()->to('/login')->with('message_erreur', 'Vous n’êtes pas autorisé à accéder à cette page');
+                }
+            }
         }
     }
 
