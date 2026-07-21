@@ -214,4 +214,25 @@ class OperationModel extends Model
             'frais' => $frais,
         ];
     }
+
+    public function calculerPromotionFrais($id_type_operation, $montant, $nums_destination, $inclure_frais)
+    {
+        $prefixe_model = model('PrefixeModel');
+        $bareme_frais_model = model('BaremeFraisModel');
+        $operateur_model = model('OperateurModel');
+        $promotion = model('OperateurModel');
+
+        if ($id_type_operation == 3 && empty($nums_destination)) {
+            return false;
+        }
+        $prefixe = $prefixe_model->findByNumero($nums_destination[0]);
+        if ($id_type_operation == 3 || $prefixe['id_operateur'] === null) { // Même opérateur
+
+            $operateur = $operateur_model->find($prefixe['id_operateur']);
+            $frais = (int) ($montant * $operateur['pct_commission'] / 100.0);
+
+            $promotion_frais = $frais * $promotion;
+        }
+        return 'promotion_frais' => $promotion_frais;
+    }
 }

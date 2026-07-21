@@ -300,4 +300,6 @@ class OperateurController extends BaseController
 
         return redirect()->back()->with('message_succes', 'Barème supprimé avec succès');
     }
+
+
 }

@@ -122,6 +122,10 @@ Historique des opérations
                                 <td class="text-end text-muted">
                                     <?= number_format($op['frais'], 0, ',', ' ') ?> Ar
                                 </td>
+<!--
+                                <td class="text-end text-muted">
+                                    <?= number_format($op['promotion_'], 0, ',', ' ') ?> Ar
+                                </td>-->
 
                                 <td class="pe-4 text-end fw-bold text-primary">
                                     <?= number_format($op['montant'] + $op['frais'], 0, ',', ' ') ?> Ar

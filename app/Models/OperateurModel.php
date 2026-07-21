@@ -43,4 +43,7 @@ class OperateurModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    // promotion
+    protected $promotion = [];
 }

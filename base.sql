@@ -45,6 +45,16 @@ create table admins (
 );
 
 
+create table promotion (
+    id integer primary key autoincrement,
+    id_operateur integer,
+    valeur integer,   -- ex 10%
+);
+
+insert into promotion (id_operateur, valeur) values
+    (1, 10),
+    (2, 5);
+
 insert into operateurs (libelle, pct_commission) values
 	('Airtel', 10),
 	('Yas', 20);

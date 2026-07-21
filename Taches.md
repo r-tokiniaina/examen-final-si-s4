@@ -32,3 +32,10 @@
             - [x] Gestion de la saisie de plusieurs numéros de téléphone
             - [x] Règle métier : division automatique du montant saisi équitablement pour chaque numéro
             - [x] Restriction de sécurité : blocage si les numéros ne sont pas du même opérateur
+
+
+- [] promotion en pourcentage sur le frais de transfert de meme operateur
+- [] base
+
+bonus
+- [] modifier le pourcentage
