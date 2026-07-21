@@ -75,6 +75,7 @@ class ClientController extends BaseController
         $client_model = model('ClientModel');
         $operation_model = model('OperationModel');
         $solde_model = model('SoldeModel');
+        $epargne_model = model('EpargneModel');
 
         $nums_destination_bruts = explode(',', $num_destination);
         $nums_destination = [];
@@ -104,10 +105,21 @@ class ClientController extends BaseController
 
             $date = date('Y-m-d H:i:s');
             foreach ($destinations as $d) {
+                $m = (int) $info_montant['montant'] / count($destinations);
+                $f = (int) $info_montant['frais'] / count($destinations);
+                $c = $client_model->findByNumero($d);
+                if ($c != null) {
+                    $epargne = (int) ($m * $c['pct_epargne'] / 100.0);
+                    $epargne_model->insert([
+                        'numero' => $d,
+                        'montant' => $epargne,
+                        'date_operation' => $date,
+                    ]);
+                }
                 $operation_model->insert([
                     'type'            => $id_type_operation,
-                    'montant'         => (int) $info_montant['montant'] / count($destinations),
-                    'frais'           => (int) $info_montant['frais'] / count($destinations),
+                    'montant'         => $m,
+                    'frais'           => $f,
                     'num_source'      => $source,
                     'num_destination' => $d,
                     'date_operation'  => $date
@@ -159,5 +171,37 @@ class ClientController extends BaseController
         }
 
         return $this->response->setJSON($operation_model->calculerFrais($id_type_operation, $montant, $nums_destination, $inclure_frais));
+    }
+
+    // GET /client/epargnes
+    public function epargnes()
+    {
+        $epargne_model = model('EpargneModel');
+
+        $client = session()->get('client');
+
+        $epargne = $epargne_model->findEpargneByNumero($client['numero']);
+
+        return view('Client/epargnes', [
+            'client' => $client,
+            'epargne' => $epargne,
+        ]);
+    }
+
+    // POST /client/epargnes/update
+    public function postEpargnesUpdate()
+    {
+        $pct_epargne = $this->request->getPost('pct_epargne');
+
+        $client_model = model('ClientModel');
+
+        $client = session()->get('client');
+
+        $client = $client_model->findByNumero($client['numero']);
+
+        $client['pct_epargne'] = $pct_epargne;
+        $client_model->save($client);
+
+        return redirect()->to('/client/epargnes')->with('message_succes', 'Taux d’épargne modifié avec succès.');
     }
 }

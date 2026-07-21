@@ -25,7 +25,8 @@ create table baremes_frais (
 
 create table clients (
 	id integer primary key autoincrement,
-	numero varchar(20) not null
+	numero varchar(20) not null,
+	pct_epargne real
 );
 
 create table operations (
@@ -42,6 +43,13 @@ create table admins (
 	id integer primary key autoincrement,
 	email text not null,
 	mot_de_passe text not null
+);
+
+create table epargnes (
+    id integer primary key autoincrement,
+    numero integer,
+    montant integer,
+    date_operation date
 );
 
 
@@ -97,16 +105,16 @@ insert into baremes_frais (type_operation, montant_min, montant_max, frais) valu
 	(3, 500001, 1000000, 2500),
 	(3, 1000001, 2000000, 3000);
 
-insert into clients (numero) values
-	('033 12 345 67'), -- 70 000 azo avy @depot (- tranfert -400) ( reste 40 000 - 400 = 39 600 )
-	('033 11 223 34'), -- 30 000 azo avy @transfert
+insert into clients (numero, pct_epargne) values
+	('032 12 345 67', 10), -- 70 000 azo avy @depot (- tranfert -400) ( reste 40 000 - 400 = 39 600 )
+	('032 11 223 34', 20), -- 30 000 azo avy @transfert
 
-	('037 12 345 67'), -- 10 000 azo avy @depot (- tranfert -50) (reste 9 000 - 50 = 8 950)
-	('037 11 223 34'); -- 1 000 azo avy @transfert
+	('037 12 345 67', 15), -- 10 000 azo avy @depot (- tranfert -50) (reste 9 000 - 50 = 8 950)
+	('037 11 223 34', 30); -- 1 000 azo avy @transfert
 
 insert into operations (type, montant, frais, num_source, num_destination, date_operation) values
-	(1, 70000, 800, '', '033 12 345 67', '2026-05-01'), -- depot
-	(3, 30000, 400, '033 12 345 67', '033 11 223 34', '2026-05-18'), -- transfert
+	(1, 70000, 800, '', '032 12 345 67', '2026-05-01'), -- depot
+	(3, 30000, 400, '032 12 345 67', '032 11 223 34', '2026-05-18'), -- transfert
 
 	(1, 10000, 100, '', '037 12 345 67', '2026-01-01'), -- depot
 	(3, 1000, 50, '037 12 345 67', '037 11 223 34', '2026-03-09'); -- transfert

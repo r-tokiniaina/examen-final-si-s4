@@ -19,7 +19,7 @@ class ClientModel extends Model
     protected $useTimestamps    = false;
 
     // Protection contre l'injection de masse (Mass Assignment)
-    protected $allowedFields    = ['numero'];
+    protected $allowedFields    = ['numero', 'pct_epargne'];
 
     // Règles de validation pour les futures insertions/mises à jour
     protected $validationRules      = [
@@ -47,13 +47,18 @@ class ClientModel extends Model
         if ($numero !== null) {
             $client = $this->where('numero', $numero)->first();
             if ($client == null) {
-                $this->insert(['numero' => $numero]);
+                $this->insert(['numero' => $numero, 'pct_epargne' => 0]);
                 $client = $this->where('numero', $numero)->first();
             }
             return $client;
         } else {
             return null;
         }
+    }
+
+    public function findByNumero($numero)
+    {
+        return $this->where('numero', $numero)->first();
     }
 
     public function formatNumero($numero, $prefixes = null)

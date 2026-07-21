@@ -1,6 +1,7 @@
 <?php
 
 $solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'] ?? 0;
+$epargne = model('EpargneModel')->findEpargneByNumero(session()->get('client')['numero']);
 
 ?>
 
@@ -68,6 +69,11 @@ $solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'
                                 <i class="ph-bold ph-swap fs-5"></i> Opérations
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('client/epargnes') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('client/epargnes*') ? 'active' : '' ?>">
+                                <i class="ph-bold ph-coins fs-5"></i> Épargnes
+                            </a>
+                        </li>
                     </ul>
 
                     <!-- Sidebar Footer (Montant au-dessus de la ligne) -->
@@ -77,6 +83,10 @@ $solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'
                         <div class="d-flex align-items-center gap-2 fw-bold fs-5 mb-3 px-1" style="color: #20c997;">
                             <i class="ph-bold ph-coins text-warning fs-4"></i>
                             <span><?= number_format($solde, 0, ',', ' ') ?> Ar</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mb-3 px-1">
+                            <i class="ph-bold ph-coins text-warning fs-4"></i>
+                            <span>Épargne : <?= number_format($epargne, 0, ',', ' ') ?> Ar</span>
                         </div>
 
                         <!-- Ligne de séparation blanche / claire -->

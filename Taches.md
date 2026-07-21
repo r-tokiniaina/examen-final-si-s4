@@ -33,9 +33,16 @@
             - [x] Règle métier : division automatique du montant saisi équitablement pour chaque numéro
             - [x] Restriction de sécurité : blocage si les numéros ne sont pas du même opérateur
 
+<<<<<<< Updated upstream
 
 - [] promotion en pourcentage sur le frais de transfert de meme operateur
 - [] base
 
 bonus
 - [] modifier le pourcentage
+=======
+# Version 3:
+- Notion d’épargne:
+    - le client choisit combien de % épargner
+    - pour chaque transfert, le % va en épargne
+>>>>>>> Stashed changes

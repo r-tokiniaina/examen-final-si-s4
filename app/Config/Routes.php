@@ -14,6 +14,9 @@ $routes->group('client', ['filter' => 'auth:client'], function ($routes) {
     $routes->get('operations', 'ClientController::operations');
     $routes->post('operations/new', 'ClientController::postOperationsNew');
     $routes->get('operations/calcul-frais', 'ClientController::operationsCalculFrais');
+
+    $routes->get('epargnes', 'ClientController::epargnes');
+    $routes->post('epargnes/update', 'ClientController::postEpargnesUpdate');
 });
 
 
