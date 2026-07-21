@@ -46,7 +46,8 @@
                     <!-- Sidebar Header -->
                     <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary pb-3">
                         <span class="fs-5 fw-bold d-flex align-items-center gap-2">
-                            <i class="ph-bold ph-cube text-primary"></i> AdminPanel
+                            <img src="<?= base_url('/assets/images/logo.png') ?>" alt="Logo" style="max-height: 32px; width: auto;">
+                            <span>Côté Opérateur</span>
                         </span>
                         <button class="btn btn-sm text-white d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
                             <i class="ph-bold ph-x fs-4"></i>
@@ -61,13 +62,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('operateur/comptes') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/comptes*') ? 'active' : '' ?>">
+                                <i class="ph-bold ph-users-three fs-5"></i> Comptes
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('operateur/autres-operateurs') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/autres-operateurs*') ? 'active' : '' ?>">
-                                <i class="ph-bold ph-tag fs-5"></i> Autres opérateurs
+                                <i class="ph-bold ph-buildings fs-5"></i> Autres opérateurs
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="<?= base_url('operateur/prefixes') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/prefixes*') ? 'active' : '' ?>">
-                                <i class="ph-bold ph-tag fs-5"></i> Préfixes
+                                <i class="ph-bold ph-hash fs-5"></i> Préfixes
                             </a>
                         </li>
                         <li class="nav-item">

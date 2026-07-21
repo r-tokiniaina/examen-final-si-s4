@@ -14,7 +14,7 @@ Historique des opérations
     <button type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm fw-medium"
             data-bs-toggle="modal"
             data-bs-target="#operationModal">
-        <i class="ph-bold ph-plus-circle fs-5"></i>
+        <i class="ph-bold ph-plus fs-5"></i>
         <span>Nouvelle opération</span>
     </button>
 </div>
@@ -141,7 +141,7 @@ Historique des opérations
 
             <div class="modal-header border-bottom">
                 <h5 class="modal-title fw-bold" id="operationModalLabel">
-                    <i class="ph-bold ph-plus-circle text-primary me-2"></i>Nouvelle opération
+                    <i class="ph-bold ph-plus text-primary me-2"></i>Nouvelle opération
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 + '?type=' + typeVal
                 + '&montant=' + montantVal
                 + '&num_destination=' + inputDest.value
-                + '&inclure_frais=' + checkboxInclureFrais.checked
+                + '&inclure_frais=' + (checkboxInclureFrais.checked ? 1 : 0)
             )
             .then(response => response.json())
             .then(data => {
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     typeSelect.addEventListener('change', function () {
-        if (this.value === '3') {
+        if (this.value == 3) {
             wrapperDest.classList.remove('d-none');
             inputDest.required = true;
         } else {
@@ -268,6 +268,14 @@ document.addEventListener('DOMContentLoaded', function () {
             inputDest.required = false;
             inputDest.value = '';
         }
+
+        if (this.value == 1) {
+            wrapperInclureFrais.classList.add('d-none');
+            checkboxInclureFrais.checked = false;
+        } else {
+            wrapperInclureFrais.classList.remove('d-none');
+        }
+
         updateCalculs();
     });
 

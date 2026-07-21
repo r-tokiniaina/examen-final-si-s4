@@ -74,6 +74,16 @@ class OperateurController extends BaseController
         ]);
     }
 
+    // GET /operateur/comptes
+    public function comptes()
+    {
+        $solde_model = model('SoldeModel');
+
+        return view('Operateur/comptes', [
+            'soldes' => $solde_model->findAll(),
+        ]);
+    }
+
     // GET /operateur/autres-operateurs
     public function autresOperateurs()
     {

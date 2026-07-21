@@ -111,7 +111,7 @@ class OperationModel extends Model
         $sql = "
             SELECT strftime('%%w', o.date_operation) as jour_index, COUNT(DISTINCT c.id) as nb_clients
             FROM operations o
-            JOIN clients c ON c.numero IN (o.num_source, o.num_destination)
+            JOIN clients c ON (c.numero = o.num_source OR (o.type = 1 AND c.numero = o.num_destination))
             WHERE o.date_operation >= ? AND o.date_operation <= ?
             GROUP BY strftime('%%w', o.date_operation)
         ";
@@ -145,7 +145,7 @@ class OperationModel extends Model
                 op.pct_commission,
                 COALESCE(SUM(o.frais), 0) AS total_frais
             FROM operations o
-            JOIN prefixes p ON SUBSTR(o.num_source, 1, 3) = p.valeur
+            JOIN prefixes p ON SUBSTR(o.num_destination, 1, 3) = p.valeur
             JOIN operateurs op ON p.id_operateur = op.id
             WHERE o.type IN (2, 3)
               AND p.id_operateur IS NOT NULL
@@ -177,7 +177,7 @@ class OperationModel extends Model
                 CASE WHEN p.id_operateur IS NULL THEN 'operateur' ELSE 'autres' END AS categorie,
                 COALESCE(SUM(o.frais), 0) AS total_frais
             FROM operations o
-            LEFT JOIN prefixes p ON SUBSTR(o.num_source, 1, 3) = p.valeur
+            LEFT JOIN prefixes p ON (SUBSTR(o.num_destination, 1, 3) = p.valeur OR SUBSTR(o.num_source, 1, 3) = p.valeur)
             WHERE o.type IN (2, 3)
             GROUP BY o.type,
                 CASE WHEN p.id_operateur IS NULL THEN 'operateur' ELSE 'autres' END

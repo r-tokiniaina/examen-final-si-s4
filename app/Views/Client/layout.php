@@ -54,7 +54,7 @@ $solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'
                     <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary pb-3">
                         <span class="fs-5 fw-bold d-flex align-items-center gap-2">
                             <img src="<?= base_url('/assets/images/logo.png') ?>" alt="Logo" style="max-height: 32px; width: auto;">
-                            <span>Client Panel</span>
+                            <span>Côté Client</span>
                         </span>
                         <button class="btn btn-sm text-white d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
                             <i class="ph-bold ph-x fs-4"></i>
@@ -65,7 +65,7 @@ $solde = model('SoldeModel')->find(session()->get('client')['numero'])['montant'
                     <ul class="nav nav-pills flex-column mb-auto gap-1">
                         <li class="nav-item">
                             <a href="<?= base_url('client/operations') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('client/operations*') ? 'active' : '' ?>">
-                                <i class="ph-bold ph-chart-pie-slice fs-5"></i> Opérations
+                                <i class="ph-bold ph-swap fs-5"></i> Opérations
                             </a>
                         </li>
                     </ul>

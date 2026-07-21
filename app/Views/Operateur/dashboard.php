@@ -14,51 +14,6 @@ Dashboard
     <h1 class="h2">Tableau de bord</h1>
 </div>
 
-<!-- Grille de cartes d'indicateurs rapides -->
-<!--<div class="row g-4 mb-4">
-    <div class="col-md-6 col-lg-4">
-        <div class="card p-3 shadow-sm border-0">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Total Retraits</p>
-                    <h3 class="mb-0 fw-bold">1,245</h3>
-                </div>
-                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded">
-                    <i class="ph-bold ph-money fs-3"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-lg-4">
-        <div class="card p-3 shadow-sm border-0">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Total Transferts</p>
-                    <h3 class="mb-0 fw-bold">842</h3>
-                </div>
-                <div class="bg-info bg-opacity-10 text-info p-3 rounded">
-                    <i class="ph-bold ph-arrows-left-right fs-3"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-lg-4">
-        <div class="card p-3 shadow-sm border-0">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <p class="text-muted mb-1">Préfixes Actifs</p>
-                    <h3 class="mb-0 fw-bold">12</h3>
-                </div>
-                <div class="bg-secondary bg-opacity-10 text-secondary p-3 rounded">
-                    <i class="ph-bold ph-tag fs-3"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>-->
-
 <!-- Grille des graphiques Chart.js -->
 <div class="row g-4">
 
@@ -144,8 +99,6 @@ Dashboard
                         <tr>
                             <th>Opérateur</th>
                             <th class="text-end">Total frais</th>
-                            <th class="text-end">Commission (%)</th>
-                            <th class="text-end">Montant à envoyer</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -162,8 +115,6 @@ Dashboard
                             <tr>
                                 <td><?= esc($row['libelle'] ?? 'Inconnu') ?></td>
                                 <td class="text-end"><?= number_format($total_frais, 0, ',', ' ') ?> Ar</td>
-                                <td class="text-end"><?= number_format($pct, 0, ',', ' ') ?> %</td>
-                                <td class="text-end"><?= number_format($montant_envoyer, 0, ',', ' ') ?> Ar</td>
                             </tr>
                         <?php endforeach; ?>
                         <?php if (empty($montants_envoyer)): ?>
@@ -176,8 +127,6 @@ Dashboard
                         <tr class="fw-bold">
                             <td>Total général</td>
                             <td class="text-end"><?= number_format($grand_total_frais, 0, ',', ' ') ?> Ar</td>
-                            <td class="text-end">-</td>
-                            <td class="text-end"><?= number_format($grand_total_envoi, 0, ',', ' ') ?> Ar</td>
                         </tr>
                     </tfoot>
                 </table>

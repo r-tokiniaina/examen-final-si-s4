@@ -61,7 +61,7 @@
                                     <i class="ph-bold ph-phone"></i>
                                 </span>
                                 <!-- Champ adapté au numéro -->
-                                <input type="text" name="numero" id="numero" class="form-control" placeholder="ex: 033 12 345 67" value="<?= old('numero') ?? '033 12 345 67' ?>" required>
+                                <input type="text" name="numero" id="numero" class="form-control" placeholder="ex: 033 12 345 67" value="<?= old('numero') ?? '032 12 345 67' ?>" required>
                             </div>
                         </div>
 

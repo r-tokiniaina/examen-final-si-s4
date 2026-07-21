@@ -24,7 +24,7 @@ Gestion des Préfixes
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-2 fw-bold text-uppercase px-4 <?= $operateur['id'] == $id_operateur ? 'active' : '' ?>"
               href="<?= base_url('operateur/prefixes?operateur=' . $operateur['id']) ?>">
-                  <i class="ph-bold ph-arrows-left-right"></i> <?= $operateur['libelle'] ?>
+                  <i class="ph-bold ph-buildings"></i> <?= $operateur['libelle'] ?>
             </a>
         </li>
     <?php endforeach; ?>

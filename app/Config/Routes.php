@@ -25,6 +25,8 @@ $routes->post('/operateur/login', 'OperateurController::postLogin');
 $routes->group('operateur', ['filter' => 'auth:admin'], function ($routes) {
     $routes->get('dashboard', 'OperateurController::dashboard');
 
+    $routes->get('comptes', 'OperateurController::comptes');
+
     $routes->get('autres-operateurs', 'OperateurController::autresOperateurs');
     $routes->post('autres-operateurs/new', 'OperateurController::postAutresOperateursNew');
     $routes->post('autres-operateurs/(:num)/update', 'OperateurController::postAutresOperateursUpdate/$1');

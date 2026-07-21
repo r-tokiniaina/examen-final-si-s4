@@ -52,7 +52,7 @@ insert into operateurs (libelle, pct_commission) values
 insert into prefixes (id_operateur, valeur) values
 	(null, '032'),
 	(null, '037'),
-	(null, '033'),
+	(1, '033'),
 	(2, '034'),
 	(2, '038');
 
@@ -111,15 +111,15 @@ create view v_mouvements as
 select o.num_destination as numero, (o.montant + o.frais) as montant, o.date_operation
 from operations o
 where o.type = 1
-union
+union all
 select o.num_source, -(o.montant + o.frais), o.date_operation
 from operations o
 where o.type = 2
-union
+union all
 select o.num_source, -(o.montant + o.frais), o.date_operation
 from operations o
 where o.type = 3
-union
+union all
 select o.num_destination, (o.montant + o.frais), o.date_operation
 from operations o
 where o.type = 3;
@@ -128,4 +128,6 @@ where o.type = 3;
 create view v_soldes as
 select m.numero, SUM(m.montant) as montant
 from v_mouvements m
+join prefixes p on SUBSTR(m.numero, 1, 3) = p.valeur
+where p.id_operateur is null
 group by m.numero;
