@@ -23,6 +23,7 @@ class ClientModel extends Model
 
     // Règles de validation pour les futures insertions/mises à jour
     protected $validationRules      = [
+        'id' => 'is_natural',
         'numero' => 'required|max_length[13]|is_unique[clients.numero,id,{id}]'
     ];
 

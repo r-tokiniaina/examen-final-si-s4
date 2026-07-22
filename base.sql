@@ -53,15 +53,13 @@ create table epargnes (
 );
 
 
-create table promotion (
+create table promotions (
     id integer primary key autoincrement,
-    id_operateur integer,
-    valeur integer,   -- ex 10%
+    valeur real
 );
 
-insert into promotion (id_operateur, valeur) values
-    (1, 10),
-    (2, 5);
+insert into promotions (valeur) values
+    (50);
 
 insert into operateurs (libelle, pct_commission) values
 	('Airtel', 10),
@@ -113,11 +111,11 @@ insert into clients (numero, pct_epargne) values
 	('037 11 223 34', 30); -- 1 000 azo avy @transfert
 
 insert into operations (type, montant, frais, num_source, num_destination, date_operation) values
-	(1, 70000, 800, '', '032 12 345 67', '2026-05-01'), -- depot
-	(3, 30000, 400, '032 12 345 67', '032 11 223 34', '2026-05-18'), -- transfert
+	(1, 70000, 0, '', '032 12 345 67', '2026-07-01'), -- depot
+	(3, 30000, 400, '032 12 345 67', '032 11 223 34', '2026-07-18'), -- transfert
 
-	(1, 10000, 100, '', '037 12 345 67', '2026-01-01'), -- depot
-	(3, 1000, 50, '037 12 345 67', '037 11 223 34', '2026-03-09'); -- transfert
+	(1, 10000, 0, '', '037 12 345 67', '2026-07-03'), -- depot
+	(3, 1000, 50, '037 12 345 67', '037 11 223 34', '2026-07-09'); -- transfert
 
 
 insert into admins (email, mot_de_passe) values
@@ -126,7 +124,7 @@ insert into admins (email, mot_de_passe) values
 
 
 create view v_mouvements as
-select o.num_destination as numero, (o.montant + o.frais) as montant, o.date_operation
+select o.num_destination as numero, o.montant as montant, o.date_operation
 from operations o
 where o.type = 1
 union all
@@ -138,14 +136,20 @@ select o.num_source, -(o.montant + o.frais), o.date_operation
 from operations o
 where o.type = 3
 union all
-select o.num_destination, (o.montant + o.frais), o.date_operation
+select o.num_destination, o.montant, o.date_operation
 from operations o
 where o.type = 3;
 
 
 create view v_soldes as
-select m.numero, SUM(m.montant) as montant
-from v_mouvements m
-join prefixes p on SUBSTR(m.numero, 1, 3) = p.valeur
-where p.id_operateur is null
-group by m.numero;
+select numero, SUM(montant) as montant
+from (
+    select m.numero as numero, m.montant as montant
+    from v_mouvements m
+    join prefixes p on SUBSTR(m.numero, 1, 3) = p.valeur
+    where p.id_operateur is null
+    union all
+    select e.numero, -e.montant
+    from epargnes e
+)
+group by numero;

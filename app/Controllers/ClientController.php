@@ -202,6 +202,9 @@ class ClientController extends BaseController
         $client['pct_epargne'] = $pct_epargne;
         $client_model->save($client);
 
+        $client = $client_model->findByNumero($client['numero']);
+        session()->set('client', $client);
+
         return redirect()->to('/client/epargnes')->with('message_succes', 'Taux d’épargne modifié avec succès.');
     }
 }

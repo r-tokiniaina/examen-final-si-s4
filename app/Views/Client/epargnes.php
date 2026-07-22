@@ -42,6 +42,7 @@
                   <div class="input-group">
                       <span class="input-group-text bg-light text-muted"><i class="ph-bold ph-coins"></i></span>
                       <input type="number" min="0" max="100" step="0.01" class="form-control" id="pct_epargne" name="pct_epargne" value="<?= $client['pct_epargne'] ?>">
+                      <span class="input-group-text bg-light text-muted"><i class="ph-bold ph-percent"></i></span>
                   </div>
               </div>
           </div>

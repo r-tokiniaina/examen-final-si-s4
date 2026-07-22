@@ -81,6 +81,11 @@
                                 <i class="ph-bold ph-scales fs-5"></i> Barèmes de frais
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('operateur/parametres') ?>" class="nav-link text-white d-flex align-items-center gap-2 <?= url_is('operateur/parametres*') ? 'active' : '' ?>">
+                                <i class="ph-bold ph-gear fs-5"></i> Paramètres
+                            </a>
+                        </li>
                     </ul>
 
                     <!-- Sidebar Footer -->

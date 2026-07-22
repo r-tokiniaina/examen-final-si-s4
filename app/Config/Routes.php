@@ -44,4 +44,7 @@ $routes->group('operateur', ['filter' => 'auth:admin'], function ($routes) {
     $routes->post('baremes/new', 'OperateurController::postBaremesNew');
     $routes->post('baremes/(:num)/update', 'OperateurController::postBaremesUpdate/$1');
     $routes->get('baremes/(:num)/delete', 'OperateurController::baremesDelete/$1');
+
+    $routes->get('parametres', 'OperateurController::parametres');
+    $routes->post('promotions/update', 'OperateurController::postPromotionsUpdate');
 });

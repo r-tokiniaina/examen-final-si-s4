@@ -301,5 +301,22 @@ class OperateurController extends BaseController
         return redirect()->back()->with('message_succes', 'Barème supprimé avec succès');
     }
 
+    // GET /operateur/parametres
+    public function parametres()
+    {
+        $promotion_model = model('PromotionModel');
 
+        return view('Operateur/parametres', [
+            'promotion' => $promotion_model->findPromotion(),
+        ]);
+    }
+
+    // POST /operateur/promotions/update
+    public function postPromotionsUpdate()
+    {
+        $valeur = $this->request->getPost('promotion');
+        $promotion_model = model('PromotionModel');
+        $promotion_model->updatePromotion($valeur);
+        return redirect()->back()->with('message_succes', 'Promotion modifiée avec succès');
+    }
 }
